@@ -17,6 +17,23 @@ import ServiceManagement
 // değişkenler oradan güvenle okunur/yazılır. Aktör izolasyonu dışında tutuluyor.
 nonisolated(unsafe) var gInvertMouseScroll = false
 nonisolated(unsafe) var gEventTap: CFMachPort?
+nonisolated(unsafe) var gTailTap: CFMachPort?
+nonisolated(unsafe) var gScrollEventSeen = 0
+nonisolated(unsafe) var gTailEventSeen = 0
+
+/// Teşhis için /tmp/mouseSwitcher.log dosyasına yazar.
+nonisolated func msLog(_ msg: String) {
+    let line = "\(Date()): \(msg)\n"
+    let path = "/tmp/mouseSwitcher.log"
+    guard let data = line.data(using: .utf8) else { return }
+    if let fh = FileHandle(forWritingAtPath: path) {
+        fh.seekToEndOfFile()
+        fh.write(data)
+        try? fh.close()
+    } else {
+        try? data.write(to: URL(fileURLWithPath: path))
+    }
+}
 
 /// Yakalanan her scroll olayı için çağrılan düşük seviye geri çağrım.
 private nonisolated func scrollEventCallback(proxy: CGEventTapProxy,
@@ -35,23 +52,58 @@ private nonisolated func scrollEventCallback(proxy: CGEventTapProxy,
         return Unmanaged.passUnretained(event)
     }
 
-    // Mod açıkken kaydırmanın her iki eksenini de ters çeviriyoruz. Kullanıcı
-    // trackpad'e geçtiğinde anahtarı kapattığı için trackpad etkilenmez.
+    gScrollEventSeen += 1
+    let logThis = gScrollEventSeen <= 6
+    if logThis {
+        let d1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+        let p1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
+        let f1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
+        msLog("HEAD önce: delta1=\(d1) point1=\(p1) fixed1=\(f1)")
+    }
+
+    // Mod açıkken kaydırmanın her iki eksenini de ters çeviriyoruz.
+    // ÖNEMLİ: delta alanı yazıldığında macOS point/fixedPt alanlarını otomatik
+    // yeniden hesaplar. Bu yüzden önce TÜM orijinal değerler okunur, sonra
+    // hepsi tek seferde yazılır; yoksa ikinci okuma yeniden hesaplanmış değeri
+    // görür ve çevirme kendini iptal eder.
     let axis1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
-    event.setIntegerValueField(.scrollWheelEventDeltaAxis1, value: -axis1)
     let axis2 = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
-    event.setIntegerValueField(.scrollWheelEventDeltaAxis2, value: -axis2)
-
     let pointAxis1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
-    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis1, value: -pointAxis1)
     let pointAxis2 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis2)
-    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis2, value: -pointAxis2)
-
     let fixedAxis1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
-    event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1, value: -fixedAxis1)
     let fixedAxis2 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2)
+
+    event.setIntegerValueField(.scrollWheelEventDeltaAxis1, value: -axis1)
+    event.setIntegerValueField(.scrollWheelEventDeltaAxis2, value: -axis2)
+    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis1, value: -pointAxis1)
+    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis2, value: -pointAxis2)
+    event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1, value: -fixedAxis1)
     event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2, value: -fixedAxis2)
 
+    if logThis {
+        let d1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+        let p1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
+        let f1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
+        msLog("HEAD sonra: delta1=\(d1) point1=\(p1) fixed1=\(f1)")
+    }
+
+    return Unmanaged.passUnretained(event)
+}
+
+/// Zincirin SONUNA eklenen salt-dinleme tap'i: uygulamalara giden son hâli loglar.
+private nonisolated func tailListenCallback(proxy: CGEventTapProxy,
+                                            type: CGEventType,
+                                            event: CGEvent,
+                                            refcon: UnsafeMutableRawPointer?) -> Unmanaged<CGEvent>? {
+    if type == .scrollWheel, gInvertMouseScroll {
+        gTailEventSeen += 1
+        if gTailEventSeen <= 6 {
+            let d1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+            let p1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
+            let f1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
+            msLog("TAIL final: delta1=\(d1) point1=\(p1) fixed1=\(f1)")
+        }
+    }
     return Unmanaged.passUnretained(event)
 }
 
@@ -106,14 +158,34 @@ final class ScrollManager: ObservableObject {
             callback: scrollEventCallback,
             userInfo: nil
         ) else {
+            msLog("tap OLUSTURULAMADI. trusted=\(AXIsProcessTrusted())")
             return
         }
+        msLog("tap olusturuldu OK. trusted=\(AXIsProcessTrusted())")
 
         gEventTap = tap
         let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
         runLoopSource = source
         CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
+
+        // Teşhis: zincirin sonunda salt-dinleme tap'i (uygulamalara giden son hâl).
+        if let tail = CGEvent.tapCreate(
+            tap: .cgSessionEventTap,
+            place: .tailAppendEventTap,
+            options: .listenOnly,
+            eventsOfInterest: CGEventMask(mask),
+            callback: tailListenCallback,
+            userInfo: nil
+        ) {
+            gTailTap = tail
+            let tailSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tail, 0)
+            CFRunLoopAddSource(CFRunLoopGetMain(), tailSource, .commonModes)
+            CGEvent.tapEnable(tap: tail, enable: true)
+            msLog("tail tap kuruldu")
+        } else {
+            msLog("tail tap kurulamadı")
+        }
     }
 
     /// Erişilebilirlik izin penceresini açar.
