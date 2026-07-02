@@ -25,19 +25,30 @@ struct SwitchView: View {
     @ObservedObject var manager: ScrollManager
 
     var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: "hand.tap.fill")
-                .foregroundStyle(manager.isMouseModeOn ? .secondary : .primary)
+        VStack(spacing: 10) {
+            HStack(spacing: 14) {
+                Image(systemName: "hand.tap.fill")
+                    .foregroundStyle(manager.isMouseModeOn ? .secondary : .primary)
 
-            Toggle("", isOn: $manager.isMouseModeOn)
-                .labelsHidden()
-                .toggleStyle(.switch)
+                Toggle("", isOn: $manager.isMouseModeOn)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
 
-            Image(systemName: "computermouse.fill")
-                .foregroundStyle(manager.isMouseModeOn ? .primary : .secondary)
+                Image(systemName: "computermouse.fill")
+                    .foregroundStyle(manager.isMouseModeOn ? .primary : .secondary)
+            }
+            .font(.title2)
+
+            Button {
+                NSApplication.shared.terminate(nil)
+            } label: {
+                Image(systemName: "power")
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Çıkış")
         }
-        .font(.title2)
         .padding(.horizontal, 18)
-        .padding(.vertical, 14)
+        .padding(.vertical, 12)
     }
 }
