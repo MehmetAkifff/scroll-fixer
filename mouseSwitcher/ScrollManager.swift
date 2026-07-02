@@ -35,25 +35,22 @@ private nonisolated func scrollEventCallback(proxy: CGEventTapProxy,
         return Unmanaged.passUnretained(event)
     }
 
-    // Sürekli (continuous) olaylar trackpad / Magic Mouse'tan gelir; onlara
-    // dokunmuyoruz. Yalnızca ayrık (discrete) mouse tekeri olaylarını çeviriyoruz.
-    let isContinuous = event.getIntegerValueField(.scrollWheelEventIsContinuous)
-    if isContinuous == 0 {
-        let axis1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
-        event.setIntegerValueField(.scrollWheelEventDeltaAxis1, value: -axis1)
-        let axis2 = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
-        event.setIntegerValueField(.scrollWheelEventDeltaAxis2, value: -axis2)
+    // Mod açıkken kaydırmanın her iki eksenini de ters çeviriyoruz. Kullanıcı
+    // trackpad'e geçtiğinde anahtarı kapattığı için trackpad etkilenmez.
+    let axis1 = event.getIntegerValueField(.scrollWheelEventDeltaAxis1)
+    event.setIntegerValueField(.scrollWheelEventDeltaAxis1, value: -axis1)
+    let axis2 = event.getIntegerValueField(.scrollWheelEventDeltaAxis2)
+    event.setIntegerValueField(.scrollWheelEventDeltaAxis2, value: -axis2)
 
-        let pointAxis1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
-        event.setIntegerValueField(.scrollWheelEventPointDeltaAxis1, value: -pointAxis1)
-        let pointAxis2 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis2)
-        event.setIntegerValueField(.scrollWheelEventPointDeltaAxis2, value: -pointAxis2)
+    let pointAxis1 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis1)
+    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis1, value: -pointAxis1)
+    let pointAxis2 = event.getIntegerValueField(.scrollWheelEventPointDeltaAxis2)
+    event.setIntegerValueField(.scrollWheelEventPointDeltaAxis2, value: -pointAxis2)
 
-        let fixedAxis1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
-        event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1, value: -fixedAxis1)
-        let fixedAxis2 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2)
-        event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2, value: -fixedAxis2)
-    }
+    let fixedAxis1 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1)
+    event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis1, value: -fixedAxis1)
+    let fixedAxis2 = event.getDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2)
+    event.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2, value: -fixedAxis2)
 
     return Unmanaged.passUnretained(event)
 }
