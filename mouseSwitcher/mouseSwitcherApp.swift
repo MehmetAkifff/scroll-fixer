@@ -13,37 +13,31 @@ struct mouseSwitcherApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            MenuContent(manager: manager)
+            SwitchView(manager: manager)
         } label: {
-            Image(systemName: manager.isMouseModeOn ? "computermouse.fill" : "computermouse")
+            Image(systemName: manager.isMouseModeOn ? "computermouse.fill" : "trackpad")
         }
-        .menuBarExtraStyle(.menu)
+        .menuBarExtraStyle(.window)
     }
 }
 
-struct MenuContent: View {
+struct SwitchView: View {
     @ObservedObject var manager: ScrollManager
 
     var body: some View {
-        if !manager.isTrusted {
-            Text("Erişilebilirlik izni gerekli")
-            Button("İzin ver…") { manager.requestPermission() }
-            Button("Ayarları aç…") { manager.openAccessibilitySettings() }
-            Divider()
+        HStack(spacing: 14) {
+            Image(systemName: "trackpad")
+                .foregroundStyle(manager.isMouseModeOn ? .secondary : .primary)
+
+            Toggle("", isOn: $manager.isMouseModeOn)
+                .labelsHidden()
+                .toggleStyle(.switch)
+
+            Image(systemName: "computermouse.fill")
+                .foregroundStyle(manager.isMouseModeOn ? .primary : .secondary)
         }
-
-        Toggle("Mouse kullanıyorum", isOn: $manager.isMouseModeOn)
-            .disabled(!manager.isTrusted)
-
-        Text(manager.isMouseModeOn
-             ? "Kaydırma: ters (mouse için)"
-             : "Kaydırma: normal (trackpad)")
-
-        Divider()
-
-        Toggle("Girişte başlat", isOn: $manager.launchAtLogin)
-
-        Button("Çıkış") { NSApplication.shared.terminate(nil) }
-            .keyboardShortcut("q")
+        .font(.title2)
+        .padding(.horizontal, 18)
+        .padding(.vertical, 14)
     }
 }

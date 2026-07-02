@@ -72,13 +72,6 @@ final class ScrollManager: ObservableObject {
     /// Erişilebilirlik izni verildi mi?
     @Published private(set) var isTrusted: Bool = false
 
-    /// Uygulama macOS girişinde otomatik başlatılsın mı?
-    @Published var launchAtLogin: Bool = false {
-        didSet {
-            updateLoginItem()
-        }
-    }
-
     private var runLoopSource: CFRunLoopSource?
     private var permissionTimer: Timer?
 
@@ -87,27 +80,16 @@ final class ScrollManager: ObservableObject {
         isMouseModeOn = saved
         gInvertMouseScroll = saved
         isTrusted = AXIsProcessTrusted()
-        // init içinde atama didSet tetiklemez; yalnızca mevcut durumu yansıtır.
-        launchAtLogin = (SMAppService.mainApp.status == .enabled)
+
+        // İzin yoksa sistem iznini bir kez otomatik iste (butona gerek kalmasın).
+        if !isTrusted {
+            requestPermission()
+        }
+        // Menü çubuğunda kalıcı olsun: girişte otomatik başlat.
+        try? SMAppService.mainApp.register()
 
         start()
         startPermissionWatch()
-    }
-
-    /// "Girişte başlat" anahtarını gerçek login item durumuyla eşitler.
-    private func updateLoginItem() {
-        do {
-            switch (launchAtLogin, SMAppService.mainApp.status) {
-            case (true, let s) where s != .enabled:
-                try SMAppService.mainApp.register()
-            case (false, .enabled):
-                try SMAppService.mainApp.unregister()
-            default:
-                break
-            }
-        } catch {
-            NSLog("Login item güncellenemedi: \(error)")
-        }
     }
 
     /// Event tap'i kurar. İzin yoksa sessizce başarısız olur; izin gelince
