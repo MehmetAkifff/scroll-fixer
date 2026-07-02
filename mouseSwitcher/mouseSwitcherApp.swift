@@ -15,7 +15,7 @@ struct mouseSwitcherApp: App {
         MenuBarExtra {
             SwitchView(manager: manager)
         } label: {
-            Image(systemName: manager.isMouseModeOn ? "computermouse.fill" : "trackpad")
+            Image(systemName: manager.isMouseModeOn ? "computermouse.fill" : "hand.tap.fill")
         }
         .menuBarExtraStyle(.window)
     }
@@ -26,7 +26,7 @@ struct SwitchView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(systemName: "trackpad")
+            Image(systemName: "hand.tap.fill")
                 .foregroundStyle(manager.isMouseModeOn ? .secondary : .primary)
 
             Toggle("", isOn: $manager.isMouseModeOn)
