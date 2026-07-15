@@ -1,0 +1,78 @@
+# Scroll Fixer
+
+Read this in other languages: [Türkçe](README.tr.md)
+
+A tiny macOS menu bar app that fixes mouse scroll direction.
+
+If you use a **trackpad and a mouse at the same time**, macOS forces both to share one scroll direction. Turn on "natural scrolling" and your trackpad feels right but your mouse feels backwards. Turn it off and it is the other way around.
+
+Scroll Fixer solves this. It lets you flip **only the mouse** scroll direction with a single switch in the menu bar, without ever touching your system's natural scrolling setting. The trackpad keeps working exactly as before.
+
+## Features
+
+- One switch in the menu bar. Toggle it on when you are on the mouse, off when you are on the trackpad.
+- Only affects the mouse scroll wheel. Trackpad gestures are never modified.
+- Does not change any system setting. Your macOS "natural scrolling" preference stays untouched.
+- Remembers your choice between restarts.
+- Launches automatically at login and stays in the menu bar.
+- Lightweight and native. Written in Swift/SwiftUI, no background services or telemetry.
+
+## Requirements
+
+- macOS 26 (Tahoe) or later
+- Apple Silicon or Intel Mac
+
+## Install
+
+1. Download the latest `Scroll Fixer.zip` from the [Releases](../../releases) page.
+2. Unzip it and drag **Scroll Fixer.app** into your **Applications** folder.
+3. The app is not signed with an Apple Developer certificate, so the first launch needs one extra step:
+   - **Right-click** (or Control-click) the app and choose **Open**.
+   - In the dialog that appears, click **Open** again.
+
+   If macOS still refuses to open it, run this once in Terminal:
+
+   ```bash
+   xattr -dr com.apple.quarantine "/Applications/Scroll Fixer.app"
+   ```
+
+4. On first launch, macOS will ask for **Accessibility** permission. This is required so the app can read and flip scroll events.
+   - Open **System Settings > Privacy & Security > Accessibility**.
+   - Enable **Scroll Fixer**.
+   - If the switch does not take effect immediately, quit and reopen the app.
+
+## Usage
+
+- Look for the mouse / hand icon in your menu bar.
+- Click it to open the switch.
+- **Switch on** = you are using the mouse, scroll direction is flipped.
+- **Switch off** = you are using the trackpad, nothing is changed.
+- The small power button quits the app.
+
+That is the whole app. Set it and forget it.
+
+## Why it needs Accessibility permission
+
+To change how the mouse scrolls, the app installs a low-level event tap that watches scroll wheel events and inverts them while the switch is on. macOS requires Accessibility permission for any app that reads system input events. Scroll Fixer only ever touches scroll wheel events, and only while the switch is on. It sends nothing off your Mac.
+
+## Build from source
+
+You need Xcode installed.
+
+```bash
+git clone https://github.com/MehmetAkifff/scroll-fixer.git
+cd scroll-fixer
+xcodebuild -project mouseSwitcher.xcodeproj -scheme mouseSwitcher -configuration Release build
+```
+
+Or just open `mouseSwitcher.xcodeproj` in Xcode and press Run.
+
+The built `Scroll Fixer.app` will be inside Xcode's DerivedData `Build/Products/Release` folder. Copy it into `/Applications` to install.
+
+## How it works
+
+The core is in [`ScrollManager.swift`](mouseSwitcher/ScrollManager.swift). It creates a `CGEvent` tap for scroll wheel events. When the switch is on, it reads all delta fields of each incoming scroll event and writes back their negatives, so scrolling one way becomes the other. When the switch is off, events pass through untouched. The system's global natural scrolling setting is never read or modified.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
