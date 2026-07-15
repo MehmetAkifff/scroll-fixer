@@ -8,6 +8,10 @@ Fare kaydırma yönünü düzelten küçük bir macOS menü çubuğu uygulaması
 
 Scroll Fixer bunu çözer. Sistemdeki natural scrolling ayarına hiç dokunmadan, menü çubuğundaki tek bir anahtarla **sadece farenin** kaydırma yönünü ters çevirmenizi sağlar. Trackpad önceden nasıl çalışıyorsa öyle çalışmaya devam eder.
 
+<p align="center">
+  <img src="docs/switch.png" alt="Scroll Fixer menü çubuğu anahtarı" width="260">
+</p>
+
 ## Özellikler
 
 - Menü çubuğunda tek bir anahtar. Fareye geçince aç, trackpad'e geçince kapat.

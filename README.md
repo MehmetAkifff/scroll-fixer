@@ -8,6 +8,10 @@ If you use a **trackpad and a mouse at the same time**, macOS forces both to sha
 
 Scroll Fixer solves this. It lets you flip **only the mouse** scroll direction with a single switch in the menu bar, without ever touching your system's natural scrolling setting. The trackpad keeps working exactly as before.
 
+<p align="center">
+  <img src="docs/switch.png" alt="Scroll Fixer menu bar switch" width="260">
+</p>
+
 ## Features
 
 - One switch in the menu bar. Toggle it on when you are on the mouse, off when you are on the trackpad.
