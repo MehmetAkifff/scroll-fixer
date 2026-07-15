@@ -26,16 +26,7 @@ Scroll Fixer bunu çözer. Sistemdeki natural scrolling ayarına hiç dokunmadan
 
 1. [Releases](../../releases) sayfasından en son `Scroll Fixer.zip` dosyasını indirin.
 2. Zip'i açın ve **Scroll Fixer.app**'i **Uygulamalar** klasörüne sürükleyin.
-3. Uygulama Apple Developer sertifikasıyla imzalanmadığı için ilk açılışta ek bir adım gerekir:
-   - Uygulamaya **sağ tıklayın** (veya Control-tık) ve **Aç**'ı seçin.
-   - Açılan pencerede tekrar **Aç**'a tıklayın.
-
-   macOS yine de açmayı reddederse Terminal'de bir kez şunu çalıştırın:
-
-   ```bash
-   xattr -dr com.apple.quarantine "/Applications/Scroll Fixer.app"
-   ```
-
+3. Çift tıklayıp açın. Uygulama Developer ID ile imzalı ve Apple tarafından notarize edilmiştir; hiçbir güvenlik uyarısı çıkmadan açılır.
 4. İlk açılışta macOS **Erişilebilirlik** izni isteyecek. Bu, uygulamanın kaydırma olaylarını okuyup ters çevirebilmesi için gereklidir.
    - **Sistem Ayarları > Gizlilik ve Güvenlik > Erişilebilirlik** bölümünü açın.
    - **Scroll Fixer**'ı etkinleştirin.
