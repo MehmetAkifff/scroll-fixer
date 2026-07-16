@@ -28,13 +28,17 @@ Scroll Fixer solves this. It lets you flip **only the mouse** scroll direction w
 
 ## Install
 
-1. Download the latest `Scroll Fixer.zip` from the [Releases](../../releases) page.
-2. Unzip it and drag **Scroll Fixer.app** into your **Applications** folder.
-3. Double-click to open it. The app is signed with a Developer ID and notarized by Apple, so it opens without any security warnings.
+1. Download the latest `Scroll Fixer.dmg` from the [Releases](../../releases) page.
+2. Open the DMG and **drag Scroll Fixer into the Applications folder** shown in the window.
+3. Open **Scroll Fixer** from your Applications folder (double-click). The app is signed with a Developer ID and notarized by Apple, so it opens without any security warnings.
 4. On first launch, macOS will ask for **Accessibility** permission. This is required so the app can read and flip scroll events.
    - Open **System Settings > Privacy & Security > Accessibility**.
    - Enable **Scroll Fixer**.
    - If the switch does not take effect immediately, quit and reopen the app.
+
+> **Important:** Always move the app into the **Applications** folder before opening it. If you run it directly from the DMG or the download folder, macOS isolates it (App Translocation) and the Accessibility permission will not stick, so scrolling will not be flipped.
+
+A plain `Scroll Fixer.zip` is also attached to each release if you prefer. If you use it, unzip it and move **Scroll Fixer.app** into Applications before opening, for the same reason as above.
 
 ## Usage
 

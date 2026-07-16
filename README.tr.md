@@ -28,13 +28,17 @@ Scroll Fixer bunu çözer. Sistemdeki natural scrolling ayarına hiç dokunmadan
 
 ## Kurulum
 
-1. [Releases](../../releases) sayfasından en son `Scroll Fixer.zip` dosyasını indirin.
-2. Zip'i açın ve **Scroll Fixer.app**'i **Uygulamalar** klasörüne sürükleyin.
-3. Çift tıklayıp açın. Uygulama Developer ID ile imzalı ve Apple tarafından notarize edilmiştir; hiçbir güvenlik uyarısı çıkmadan açılır.
+1. [Releases](../../releases) sayfasından en son `Scroll Fixer.dmg` dosyasını indirin.
+2. DMG'yi açın ve **Scroll Fixer**'ı penceredeki **Uygulamalar** klasörüne sürükleyin.
+3. **Scroll Fixer**'ı Uygulamalar klasöründen açın (çift tık). Uygulama Developer ID ile imzalı ve Apple tarafından notarize edilmiştir; hiçbir güvenlik uyarısı çıkmadan açılır.
 4. İlk açılışta macOS **Erişilebilirlik** izni isteyecek. Bu, uygulamanın kaydırma olaylarını okuyup ters çevirebilmesi için gereklidir.
    - **Sistem Ayarları > Gizlilik ve Güvenlik > Erişilebilirlik** bölümünü açın.
    - **Scroll Fixer**'ı etkinleştirin.
    - Anahtar hemen etki etmezse uygulamadan çıkıp yeniden açın.
+
+> **Önemli:** Uygulamayı açmadan önce mutlaka **Uygulamalar** klasörüne taşıyın. DMG'den ya da indirme klasöründen doğrudan çalıştırırsanız macOS uygulamayı yalıtır (App Translocation) ve Erişilebilirlik izni tutmaz; kaydırma ters çevrilmez.
+
+Tercih ederseniz her sürüme düz bir `Scroll Fixer.zip` de eklidir. Onu kullanırsanız zip'i açıp **Scroll Fixer.app**'i açmadan önce yine Uygulamalar'a taşıyın (aynı sebeple).
 
 ## Kullanım
 
